@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/Base64.sol";
 import "./libraries/Base64.sol";
 import "hardhat/console.sol";
 
@@ -54,7 +55,6 @@ contract MyEpicGame is ERC721 {
         uint256[] memory characterWisdomModifier,
         uint256[] memory characterIntelligenceModifier
     ) ERC721("Heroes", "HERO") {
-
         for (uint256 i = 0; i < characterNames.length; i += 1) {
             defaultCharacters.push(
                 CharacterAttributes({
@@ -84,11 +84,9 @@ contract MyEpicGame is ERC721 {
     }
 
     function mintCharacterNFT(uint256 _characterIndex) external {
-
         uint256 newItemId = _tokenIds.current();
 
         _safeMint(msg.sender, newItemId);
-
 
         nftHolderAttributes[newItemId] = CharacterAttributes({
             characterIndex: _characterIndex,
@@ -101,45 +99,81 @@ contract MyEpicGame is ERC721 {
             luck: statRoll(defaultCharacters[_characterIndex].luck),
             charisma: statRoll(defaultCharacters[_characterIndex].charisma),
             wisdom: statRoll(defaultCharacters[_characterIndex].wisdom),
-            intelligence: statRoll(defaultCharacters[_characterIndex].intelligence)
-            });
+            intelligence: statRoll(
+                defaultCharacters[_characterIndex].intelligence
+            )
+        });
 
-        console.log("Minted NFT w/ tokenId %s and characterIndex %s",newItemId,_characterIndex);
+        console.log(
+            "Minted NFT w/ tokenId %s and characterIndex %s",
+            newItemId,
+            _characterIndex
+        );
 
         nftHolders[msg.sender] = newItemId;
 
         _tokenIds.increment();
     }
 
-}
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-    CharacterAttributes memory charAttributes = nftHolderAttributes[_tokenId];
+    function tokenURI(uint256 _tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        CharacterAttributes memory charAttributes = nftHolderAttributes[
+            _tokenId
+        ];
 
-    string memory strHp = Strings.toString(charAttributes.hp);
-    string memory strMaxHp = Strings.toString(charAttributes.maxHp);
-    string memory strAttackDamage = Strings.toString(charAttributes.attackDamage);
-    string memory strStrength = Strings.toString(charAttributes.attackDamage);
-    string memory strLuck = Strings.toString(charAttributes.attackDamage);
-    string memory strCharisma = Strings.toString(charAttributes.attackDamage);
-    string memory strWisdom = Strings.toString(charAttributes.attackDamage);
+        string memory strHp = Strings.toString(charAttributes.hp);
+        string memory strMaxHp = Strings.toString(charAttributes.maxHp);
+        string memory strAttackDamage = Strings.toString(
+            charAttributes.attackDamage
+        );
+        string memory strStrength = Strings.toString(
+            charAttributes.attackDamage
+        );
+        string memory strLuck = Strings.toString(charAttributes.attackDamage);
+        string memory strCharisma = Strings.toString(
+            charAttributes.attackDamage
+        );
+        string memory strWisdom = Strings.toString(charAttributes.attackDamage);
+        string memory strIntelligence = Strings.toString(
+            charAttributes.attackDamage
+        );
 
-    string memory json = Base64.encode(
-        abi.encodePacked(
-        '{"name": "',
-        charAttributes.name,
-        ' -- NFT #: ',
-        Strings.toString(_tokenId),
-        '", "description": "This is an NFT that lets people play in the game Metaverse Slayer!", "image": "',
-        charAttributes.imageURI,
-        '", "attributes": [ { "trait_type": "Health Points", "value": ',strHp,', "max_value":',strMaxHp,'}, { "trait_type": "Attack Damage", "value": ',
-        strAttackDamage,'} ]}'
-        )
-    );
+        string memory json = Base64.encode(
+            abi.encodePacked(
+                '{"name": "',
+                charAttributes.name,
+                " -- NFT #: ",
+                Strings.toString(_tokenId),
+                '", "description": "This is an NFT that lets people play in the game Metaverse Slayer!", "image": "',
+                charAttributes.imageURI,
+                '", "attributes": [ { "trait_type": "Health Points", "value": ',
+                strHp,
+                ', "max_value":',
+                strMaxHp,
+                '}, { "trait_type": "Attack Damage", "value": ',
+                strAttackDamage,
+                '}, { "trait_type": "Strength", "value": ',
+                strStrength,
+                '}, { "trait_type": "Luck", "value": ',
+                strLuck,
+                '}, { "trait_type": "Charisma", "value": ',
+                strCharisma,
+                '}, { "trait_type": "Wisdom", "value": ',
+                strWisdom,
+                '}, { "trait_type": "Intelligence", "value": ',
+                strIntelligence,
+                "} ]}"
+            )
+        );
 
-    string memory output = string(
-        abi.encodePacked("data:application/json;base64,", json)
-    );
-    
-    return output;
-        }
+        string memory output = string(
+            abi.encodePacked("data:application/json;base64,", json)
+        );
+
+        return output;
+    }
 }
