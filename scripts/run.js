@@ -11,7 +11,11 @@ const main = async () => {
       [1, 4, 5],                    // Luck
       [1, 2, 3],                    // Charisma
       [4, 1, 2],                    // Wisdom
-      [4, 1, 2],                     // Intelligence                   
+      [4, 1, 2],                     // Intelligence 
+      "THE BOSS",                   // Boss name
+      "https://www.kindpng.com/picc/m/46-469365_clip-art-angry-stick-figure-meme-angry-meme.png",       // Boss image
+      10000,                         // Boss hp
+      50                             // Boss attack damage                  
     );
     await gameContract.deployed();
     console.log("Contract deployed to:", gameContract.address);
