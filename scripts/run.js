@@ -7,13 +7,15 @@ const main = async () => {
       "https://i.imgur.com/E9e51QQ.png"],
       [300, 200, 100],              // HP values
       [25, 50, 100],                // Attack damage values
-      [4, 2, 1],                    // Strength
-      [1, 4, 5],                    // Luck
-      [1, 2, 3],                    // Charisma
-      [4, 1, 2],                    // Wisdom
-      [4, 1, 2],                     // Intelligence 
-      "THE BOSS",                   // Boss name
-      "https://www.kindpng.com/picc/m/46-469365_clip-art-angry-stick-figure-meme-angry-meme.png",       // Boss image
+      {                         
+      characterStrengthModifier:[4, 2, 1],                    // Strength
+      characterLuckModifier:[1, 4, 5],                        // Luck
+      characterCharismaModifier:[1, 2, 3],                    // Charisma
+      characterWisdomModifier:[4, 1, 2],                      // Wisdom
+      characterIntelligenceModifier:[4, 1, 2],                // Intelligence 
+      },
+      "THE BOSS", // Boss name
+      "https://www.kindpng.com/picc/m/46-469365_clip-art-angry-stick-figure-meme-angry-meme.png", // Boss image
       10000,                         // Boss hp
       50                             // Boss attack damage                  
     );
