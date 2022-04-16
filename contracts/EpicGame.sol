@@ -21,13 +21,7 @@ contract MyEpicGame is ERC721 {
         return 4 + random(10) + statModifier;
     }
 
-    struct CharacterAttributes {
-        uint256 characterIndex;
-        string name;
-        string imageURI;
-        uint256 hp;
-        uint256 maxHp;
-        uint256 attackDamage;
+    struct CharacterStats {
         uint256 strength;
         uint256 luck;
         uint256 charisma;
@@ -35,26 +29,69 @@ contract MyEpicGame is ERC721 {
         uint256 intelligence;
     }
 
+    struct CharacterAttributes {
+        uint256 characterIndex;
+        string name;
+        string imageURI;
+        uint256 hp;
+        uint256 maxHp;
+        uint256 attackDamage;
+        CharacterStats stats;
+    }
+
+    struct CharacterStatModifiers {
+        uint256[] characterStrengthModifier;
+        uint256[] characterLuckModifier;
+        uint256[] characterCharismaModifier;
+        uint256[] characterWisdomModifier;
+        uint256[] characterIntelligenceModifier;
+    }
+
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
     CharacterAttributes[] defaultCharacters;
 
+    mapping(address => uint256) public nftHolders;
     mapping(uint256 => CharacterAttributes) public nftHolderAttributes;
 
-    mapping(address => uint256) public nftHolders;
+    struct BigBoss {
+        string name;
+        string imageURI;
+        uint256 hp;
+        uint256 maxHp;
+        uint256 attackDamage;
+    }
+
+    BigBoss public bigBoss;
 
     constructor(
         string[] memory characterNames,
         string[] memory characterImageURIs,
         uint256[] memory characterHp,
         uint256[] memory characterAttackDmg,
-        uint256[] memory characterStrengthModifier,
-        uint256[] memory characterLuckModifier,
-        uint256[] memory characterCharismaModifier,
-        uint256[] memory characterWisdomModifier,
-        uint256[] memory characterIntelligenceModifier
+        CharacterStatModifiers memory characterStatModifiers,
+        string memory bossName, // These new variables would be passed in via run.js or deploy.js.
+        string memory bossImageURI,
+        uint256 bossHp,
+        uint256 bossAttackDamage
     ) ERC721("Heroes", "HERO") {
+        // Initialize the boss. Save it to our global "bigBoss" state variable.
+        bigBoss = BigBoss({
+            name: bossName,
+            imageURI: bossImageURI,
+            hp: bossHp,
+            maxHp: bossHp,
+            attackDamage: bossAttackDamage
+        });
+
+        console.log(
+            "Done initializing boss %s w/ HP %s, img %s",
+            bigBoss.name,
+            bigBoss.hp,
+            bigBoss.imageURI
+        );
+
         for (uint256 i = 0; i < characterNames.length; i += 1) {
             defaultCharacters.push(
                 CharacterAttributes({
@@ -64,11 +101,18 @@ contract MyEpicGame is ERC721 {
                     hp: characterHp[i],
                     maxHp: characterHp[i],
                     attackDamage: characterAttackDmg[i],
-                    strength: characterStrengthModifier[i],
-                    luck: characterLuckModifier[i],
-                    charisma: characterCharismaModifier[i],
-                    wisdom: characterWisdomModifier[i],
-                    intelligence: characterIntelligenceModifier[i]
+                    stats: CharacterStats({
+                        strength: characterStatModifiers
+                            .characterStrengthModifier[i],
+                        luck: characterStatModifiers.characterLuckModifier[i],
+                        charisma: characterStatModifiers
+                            .characterCharismaModifier[i],
+                        wisdom: characterStatModifiers.characterWisdomModifier[
+                            i
+                        ],
+                        intelligence: characterStatModifiers
+                            .characterIntelligenceModifier[i]
+                    })
                 })
             );
 
@@ -95,13 +139,21 @@ contract MyEpicGame is ERC721 {
             hp: defaultCharacters[_characterIndex].hp,
             maxHp: defaultCharacters[_characterIndex].hp,
             attackDamage: defaultCharacters[_characterIndex].attackDamage,
-            strength: statRoll(defaultCharacters[_characterIndex].strength),
-            luck: statRoll(defaultCharacters[_characterIndex].luck),
-            charisma: statRoll(defaultCharacters[_characterIndex].charisma),
-            wisdom: statRoll(defaultCharacters[_characterIndex].wisdom),
-            intelligence: statRoll(
-                defaultCharacters[_characterIndex].intelligence
-            )
+            stats: CharacterStats({
+                strength: statRoll(
+                    defaultCharacters[_characterIndex].stats.strength
+                ),
+                luck: statRoll(defaultCharacters[_characterIndex].stats.luck),
+                charisma: statRoll(
+                    defaultCharacters[_characterIndex].stats.charisma
+                ),
+                wisdom: statRoll(
+                    defaultCharacters[_characterIndex].stats.wisdom
+                ),
+                intelligence: statRoll(
+                    defaultCharacters[_characterIndex].stats.intelligence
+                )
+            })
         });
 
         console.log(
@@ -131,15 +183,15 @@ contract MyEpicGame is ERC721 {
             charAttributes.attackDamage
         );
         string memory strStrength = Strings.toString(
-            charAttributes.attackDamage
+            charAttributes.stats.strength
         );
-        string memory strLuck = Strings.toString(charAttributes.attackDamage);
+        string memory strLuck = Strings.toString(charAttributes.stats.luck);
         string memory strCharisma = Strings.toString(
-            charAttributes.attackDamage
+            charAttributes.stats.charisma
         );
-        string memory strWisdom = Strings.toString(charAttributes.attackDamage);
+        string memory strWisdom = Strings.toString(charAttributes.stats.wisdom);
         string memory strIntelligence = Strings.toString(
-            charAttributes.attackDamage
+            charAttributes.stats.intelligence
         );
 
         string memory json = Base64.encode(
@@ -176,4 +228,5 @@ contract MyEpicGame is ERC721 {
 
         return output;
     }
+
 }
